@@ -110,7 +110,17 @@ post "/lists/:index/todos/:todo_idx/status" do
   @todo_idx = params[:todo_idx].to_i
   @status = session[:lists][@index][:status]
 
+  session[:success] = "Todo has been updated"
   @status[@todo_idx] = params[:completed].empty? ? "complete" : ""
+  redirect "/lists/#{@index}"
+end
+
+post "/lists/:index/todos/complete" do
+  @index = params[:index].to_i
+  @status = session[:lists][@index][:status]
+
+  @status.map! { |todo_status| "complete" }
+  session[:success] = "All todos have been completed"
   redirect "/lists/#{@index}"
 end
 
@@ -129,5 +139,20 @@ helpers do
     elsif todos.any? { |todo| todo == todo_name }
       "Todo name must be unique"
     end
+  end
+
+  def todos_complete?(list_index)
+    index = list_index.to_i
+    total_todos(index) > 0 &&
+      num_todos_complete(index) == total_todos(index)
+  end
+
+  def num_todos_complete(list_index)
+    session[:lists][list_index][:status]
+      .select { |status| status == 'complete' }.size
+  end
+
+  def total_todos(list_index)
+    session[:lists][list_index][:todos].size
   end
 end
