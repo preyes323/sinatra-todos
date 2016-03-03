@@ -1,5 +1,5 @@
 <ul id="lists">
-  <% @lists.each_with_index do |list, index| %>
+  <% sort_lists(@lists.each_with_index).each do |list, index| %>
     <li class="<%= todos_complete?(index) ? 'complete' : '' %>">
       <a href="/lists/<%= index %>">
         <h2><%= list[:name] %></h2>

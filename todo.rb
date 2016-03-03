@@ -1,5 +1,5 @@
 require "sinatra"
-require "sinatra/reloader"
+require "sinatra/reloader" if development?
 require "sinatra/content_for"
 require "tilt/erubis"
 require "pry"
@@ -154,5 +154,14 @@ helpers do
 
   def total_todos(list_index)
     session[:lists][list_index][:todos].size
+  end
+
+  def sort_lists(lists)
+    lists.sort_by { |_, index| todos_complete?(index) ? 1 : 0 }
+  end
+
+  def sort_todos(todos, list_index)
+    status = session[:lists][list_index][:status]
+    todos.sort_by { |_, index| status[index] == 'complete'  ? 1 : 0 }
   end
 end

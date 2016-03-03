@@ -13,7 +13,7 @@
     </ul>
   </header>
   <ul>
-    <% @todos.each_with_index do |todo, todo_idx| %>
+    <% sort_todos(@todos.each_with_index, @index).each do |todo, todo_idx| %>
       <li class="<%= @status[todo_idx] %>">
         <form action="/lists/<%= @index %>/todos/<%= todo_idx %>/status" method="post" class="check">
           <input type="hidden" name="completed" value="<%= @status[todo_idx] %>" />
