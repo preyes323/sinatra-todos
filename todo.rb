@@ -6,6 +6,8 @@ require "tilt/erubis"
 configure do
   enable :sessions
   set :session_secret, 'secret'
+  set :erb, :escape_html => true
+  set :show_exceptions, :after_handler
 end
 
 before do
@@ -26,6 +28,7 @@ end
 
 get "/lists/:index" do
   @index = params[:index].to_i
+  halt 404 if @index >= session[:lists].size
   @list = session[:lists][@index]
   @todos = session[:lists][@index][:todos]
   @status = session[:lists][@index][:status]
@@ -121,6 +124,11 @@ post "/lists/:index/todos/complete" do
   @status.map! { |todo_status| "complete" }
   session[:success] = "All todos have been completed"
   redirect "/lists/#{@index}"
+end
+
+error 404 do
+  session[:error] = "Sorry the page you are looking for does not exist"
+  redirect "/lists"
 end
 
 helpers do
