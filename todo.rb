@@ -2,6 +2,7 @@ require "sinatra"
 require "sinatra/reloader" if development?
 require "sinatra/content_for"
 require "tilt/erubis"
+require "pry"
 
 configure do
   enable :sessions
@@ -73,8 +74,14 @@ end
 
 post "/lists/:index/destroy" do
   @index = params[:index].to_i
-  session[:success] = "Successfuly deleted '#{session[:lists].delete_at(@index)[:name]}'"
-  redirect "/lists"
+  session[:lists].delete_at(@index)
+
+  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+    "/lists"
+  else
+    session[:success] = "Successfuly deleted the list"
+    redirect "/lists"
+  end
 end
 
 post "/lists/:index/todos" do
@@ -103,8 +110,15 @@ post "/lists/:index/todos/:todo_idx/destroy" do
   @todo_idx = params[:todo_idx].to_i
 
   session[:lists][@index][:status].delete_at(@todo_idx)
-  session[:success] = "Successfuly deleted '#{@todos.delete_at(@todo_idx)}' todo"
-  redirect "/lists/#{@index}"
+  @todos.delete_at(@todo_idx)
+
+
+  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+    status 204
+  else
+    session[:success] = "Successfuly deleted todo"
+    redirect "/lists/#{@index}"
+  end
 end
 
 post "/lists/:index/todos/:todo_idx/status" do
